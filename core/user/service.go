@@ -12,6 +12,7 @@ type (
 		IsValidMail(email string) bool
 		GetUserByMail(email string) (User, error)
 		EncryptPassword(password string) (string, error)
+		ValidPassword(email, password string) error
 	}
 
 	service struct {
@@ -54,4 +55,21 @@ func (s service) EncryptPassword(password string) (string, error) {
 		return "", err
 	}
 	return string(hash), nil
+}
+
+func (s service) ValidPassword(email, password string) error {
+	user, err := s.repo.GetUserByMail(email)
+
+	if err != nil {
+		return err
+	}
+	passwordByte := []byte(password)
+	passwordDB := []byte(user.Password)
+
+	err = bcrypt.CompareHashAndPassword(passwordDB, passwordByte)
+
+	if err != nil {
+		return err
+	}
+	return nil
 }

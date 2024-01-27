@@ -19,13 +19,13 @@ create table PRODUCTS(
     foreign key (create_by) references USERS(id)
 );
 
-create table ROLES(
+create table roles(
     id not null auto_increment,
     name varchar(255) not null,
     primary key(id)
 );
 
-create table USER_ROLES(
+create table user_roles(
     id int not null auto_increment,
     user_id int not null, 
     role_id int not null,
@@ -34,6 +34,6 @@ create table USER_ROLES(
     foreign key (role_id) references ROLES(id)
 );
 
-insert into ROLES(name) values ('admin')
-insert into ROLES(name) values ('seller')
-insert into ROLES(name) values ('customer')
+insert into roles(id, name) values (1, 'admin');
+insert into roles(id, name) values (2, 'seller');
+insert into roles(id, name) values (3, 'customer');
