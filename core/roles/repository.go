@@ -10,7 +10,7 @@ type (
 		SaveUserRole(roles *UserRoles) error
 		UserExits(id int) error
 		GetUserRoles(id int) ([]UserRoles, error)
-		RemoveUserRole(roles *UserRoles) error
+		RemoveUserRole(id int) (bool, error)
 	}
 
 	repo struct {
@@ -48,6 +48,15 @@ func (repo *repo) GetUserRoles(id int) ([]UserRoles, error) {
 	return userRol, nil
 }
 
-func (r *repo) RemoveUserRole(roles *UserRoles) error {
-	return nil
+func (r *repo) RemoveUserRole(id int) (bool, error) {
+	var userRol UserRoles
+	err := r.db.First(&userRol, id).Delete(&userRol)
+
+	if err.Error != nil {
+		if err.Error == gorm.ErrRecordNotFound {
+			return false, err.Error
+		}
+		return true, err.Error
+	}
+	return true, nil
 }

@@ -34,6 +34,7 @@ func main() {
 	router.POST("/login", gin.HandlerFunc(userEnd.LoginUser))
 
 	router.POST("/saveRole", gin.HandlerFunc(rolesEnd.SaveUserRole))
+	router.DELETE("/delete/:id", gin.HandlerFunc(rolesEnd.RemoveUserRole))
 
 	router.Run(":8080")
 }

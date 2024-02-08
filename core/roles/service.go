@@ -9,6 +9,7 @@ type (
 		SaveUserRole(user_id, rol_id string) (UserRoles, error)
 		UserExits(id string) error
 		GetUserRoles(idUser, idRole string) (bool, error)
+		RemoveUserRole(id string) (bool, error)
 	}
 
 	service struct {
@@ -74,4 +75,16 @@ func (s *service) GetUserRoles(idUser, idRole string) (bool, error) {
 		}
 	}
 	return true, nil
+}
+
+func (s *service) RemoveUserRole(id string) (bool, error) {
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		return false, err
+	}
+	existRole, err := s.repo.RemoveUserRole(idInt)
+	if err != nil {
+		return existRole, err
+	}
+	return existRole, nil
 }
