@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/Jhon-2801/max-inventory/core/roles"
 	"github.com/gin-gonic/gin"
@@ -49,13 +50,15 @@ func makeSaveUserRole(s roles.Service) Controller {
 			c.IndentedJSON(http.StatusBadRequest, gin.H{"status": 400, "message": "role_id is required"})
 			return
 		}
-		if req.RoleID > "3" || req.RoleID == "0" {
+		idInt, err := strconv.Atoi(req.RoleID)
+
+		if idInt > 3 || idInt == 0 {
 			c.IndentedJSON(http.StatusBadRequest, gin.H{"status": 400, "message": "role_id not found"})
 			return
 		}
 		existRol, err := s.GetUserRoles(req.UserID, req.RoleID)
 		if err != nil {
-			c.IndentedJSON(http.StatusBadRequest, gin.H{"status": 500, "message": err})
+			c.IndentedJSON(http.StatusInternalServerError, gin.H{"status": 500, "message": err})
 			return
 		}
 		if existRol == false {
@@ -76,6 +79,22 @@ func makeSaveUserRole(s roles.Service) Controller {
 
 func makeRemoveUserRole(s roles.Service) Controller {
 	return func(c *gin.Context) {
+		id := c.Param("id")
+		if id == "" {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"status": 400, "message": "id is required"})
+			return
+		}
+
+		existRole, err := s.RemoveUserRole(id)
+		if err != nil {
+			if !existRole {
+				c.IndentedJSON(http.StatusBadRequest, gin.H{"status": 400, "message": "id not found"})
+				return
+			}
+			c.IndentedJSON(http.StatusInternalServerError, gin.H{"status": 500, "message": err})
+			return
+		}
+		c.IndentedJSON(http.StatusAccepted, gin.H{"status": 202})
 
 	}
 }
