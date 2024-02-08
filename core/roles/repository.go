@@ -8,7 +8,8 @@ import (
 type (
 	Repository interface {
 		SaveUserRole(roles *UserRoles) error
-		UserById(id int) error
+		UserExits(id int) error
+		GetUserRoles(id int) ([]UserRoles, error)
 		RemoveUserRole(roles *UserRoles) error
 	}
 
@@ -27,7 +28,7 @@ func (repo *repo) SaveUserRole(roles *UserRoles) error {
 	}
 	return nil
 }
-func (repo *repo) UserById(id int) error {
+func (repo *repo) UserExits(id int) error {
 	user := user.User{
 		Id: id,
 	}
@@ -36,6 +37,15 @@ func (repo *repo) UserById(id int) error {
 		return err
 	}
 	return nil
+}
+
+func (repo *repo) GetUserRoles(id int) ([]UserRoles, error) {
+	var userRol []UserRoles
+	err := repo.db.Where("user_id = ?", id).Find(&userRol)
+	if err.Error != nil {
+		return nil, err.Error
+	}
+	return userRol, nil
 }
 
 func (r *repo) RemoveUserRole(roles *UserRoles) error {

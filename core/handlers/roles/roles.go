@@ -40,7 +40,7 @@ func makeSaveUserRole(s roles.Service) Controller {
 			c.IndentedJSON(http.StatusBadRequest, gin.H{"status": 400, "message": "user_id is required"})
 			return
 		}
-		err = s.UserByID(req.UserID)
+		err = s.UserExits(req.UserID)
 		if err != nil {
 			c.IndentedJSON(http.StatusBadRequest, gin.H{"status": 400, "message": "user_id not found"})
 			return
@@ -49,10 +49,20 @@ func makeSaveUserRole(s roles.Service) Controller {
 			c.IndentedJSON(http.StatusBadRequest, gin.H{"status": 400, "message": "role_id is required"})
 			return
 		}
-		if req.RoleID >= "3" || req.RoleID == "0" {
+		if req.RoleID > "3" || req.RoleID == "0" {
 			c.IndentedJSON(http.StatusBadRequest, gin.H{"status": 400, "message": "role_id not found"})
 			return
 		}
+		existRol, err := s.GetUserRoles(req.UserID, req.RoleID)
+		if err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"status": 500, "message": err})
+			return
+		}
+		if existRol == false {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"status": 400, "message": "the user already has that role"})
+			return
+		}
+
 		userRole, err := s.SaveUserRole(req.UserID, req.RoleID)
 
 		if err != nil {
