@@ -7,7 +7,8 @@ import (
 type (
 	Service interface {
 		SaveUserRole(user_id, rol_id string) (UserRoles, error)
-		UserByID(id string) error
+		UserExits(id string) error
+		GetUserRoles(idUser, idRole string) (bool, error)
 	}
 
 	service struct {
@@ -20,17 +21,17 @@ func NewService(repo Repository) Service {
 }
 
 func (s *service) SaveUserRole(user_id, rol_id string) (UserRoles, error) {
-	userString, err := strconv.Atoi(user_id)
+	userInd, err := strconv.Atoi(user_id)
 	if err != nil {
 		return UserRoles{}, err
 	}
-	roleString, err := strconv.Atoi(rol_id)
+	roleInd, err := strconv.Atoi(rol_id)
 	if err != nil {
 		return UserRoles{}, err
 	}
 	userRol := UserRoles{
-		UserID: userString,
-		RoleID: roleString,
+		UserID: userInd,
+		RoleID: roleInd,
 	}
 
 	err = s.repo.SaveUserRole(&userRol)
@@ -41,17 +42,36 @@ func (s *service) SaveUserRole(user_id, rol_id string) (UserRoles, error) {
 	return userRol, nil
 }
 
-func (s *service) UserByID(id string) error {
-	idString, err := strconv.Atoi(id)
+func (s *service) UserExits(id string) error {
+	idInt, err := strconv.Atoi(id)
 	if err != nil {
 		return err
 	}
 
-	err = s.repo.UserById(idString)
+	err = s.repo.UserExits(idInt)
 
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (s *service) GetUserRoles(idUser, idRole string) (bool, error) {
+
+	idUserInt, err := strconv.Atoi(idUser)
+	if err != nil {
+		return false, err
+	}
+	idRoleInt, err := strconv.Atoi(idRole)
+	if err != nil {
+		return false, err
+	}
+	usersRole, err := s.repo.GetUserRoles(idUserInt)
+	for _, v := range usersRole {
+		if v.RoleID == idRoleInt {
+			return false, err
+		}
+	}
+	return true, nil
 }
